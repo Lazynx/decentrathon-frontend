@@ -1,30 +1,18 @@
 "use client";
 
-import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { createClient } from 'pexels';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Skeleton from '@/app/components/skeleton/SkeletonCourse';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import pexelsClient from '@/app/utils/pexelsClient';
+import axiosInstance from '@/app/utils/axiosInstance';
+import { extractIDs } from '@/app/utils/extractIDs'
 
-const PEXELS_API_KEY = 'nlv3bF8K9X5b1HrEDXsJNM8Iy2aDAPblkPTSWvNNnHawMgD7gnHPfP1k';
-const pexelsClient = createClient(PEXELS_API_KEY);
-
-const extractIDs = (inputString) => {
-  const courseMatch = inputString.match(/course-([^%&]+)/);
-  const lessonMatch = inputString.match(/lesson-([^&]+)/);
-
-  return {
-    courseID: courseMatch ? courseMatch[1] : null,
-    lessonID: lessonMatch ? lessonMatch[1] : null
-  };
-};
+const resultsPerPage = 5;
 
 const Page = () => {
   const router = useRouter();
   const { id } = useParams();
-
   const { courseID, lessonID } = extractIDs(id);
 
   const [course, setCourse] = useState(null);
@@ -39,50 +27,45 @@ const Page = () => {
   const [isReading, setIsReading] = useState(true);
   const [resultPage, setResultPage] = useState(0);
   const [topicImage, setTopicImage] = useState('');
-  const resultsPerPage = 5;
 
-  let correct_answer = 0;
-  let incorrect_answer = 0;
+  const fetchCourseData = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(`/course/${courseID}/${lessonID}`);
+      const courseData = response.data;
+      setCourse(courseData);
+      setUserAnswers(new Array(courseData.tests.length).fill(null));
+
+      const pexelsResponse = await pexelsClient.photos.search({ query: courseData.topic, per_page: 1 });
+      if (pexelsResponse.photos.length > 0) {
+        setTopicImage(pexelsResponse.photos[0].src.large);
+      } else {
+        setTopicImage("https://t3.ftcdn.net/jpg/04/41/15/78/360_F_441157874_UDGnaFGo7JY5MX8djN50w55TRlYobtqf.jpg");
+      }
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+    }
+  }, [courseID, lessonID]);
 
   useEffect(() => {
-    const fetchCourseData = async () => {
-      try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_ORIGIN}/api/course/${courseID}/${lessonID}`);
-        setCourse(response.data);
-        setUserAnswers(new Array(response.data.tests.length).fill(null));
-        
-        // Поиск изображения по теме курса с помощью Pexels API
-        const pexelsResponse = await pexelsClient.photos.search({ query: response.data.topic, per_page: 1 });
-        if (pexelsResponse.photos && pexelsResponse.photos.length > 0) {
-          setTopicImage(pexelsResponse.photos[0].src.large);
-        }
-        else{
-          setTopicImage("https://t3.ftcdn.net/jpg/04/41/15/78/360_F_441157874_UDGnaFGo7JY5MX8djN50w55TRlYobtqf.jpg")
-        }
-      } catch (error) {
-        console.error('Error fetching course data:', error);
-      }
-    };
-
     if (id) {
       fetchCourseData();
     }
-  }, [id]);
+  }, [id, fetchCourseData]);
 
   useEffect(() => {
     if (testCompleted && (correctCount + incorrectCount) * 0.6 <= correctCount) {
       const addXp = async () => {
         try {
           const refreshToken = localStorage.getItem('refreshToken');
-          await axios.put(`${process.env.NEXT_PUBLIC_ORIGIN}/api/auth/addXp`, { token: refreshToken });
-          await axios.post(`${process.env.NEXT_PUBLIC_ORIGIN}/api/course/${courseID}/${lessonID}/complete`, { token: refreshToken });
+          await axiosInstance.put('/auth/addXp', { token: refreshToken });
+          await axiosInstance.post(`/course/${courseID}/${lessonID}/complete`, { token: refreshToken });
         } catch (error) {
           console.error('Error adding XP:', error);
         }
       };
       addXp();
     }
-  }, [testCompleted, correctCount, incorrectCount]);
+  }, [testCompleted, correctCount, incorrectCount, courseID, lessonID]);
   
   if (!course) {
     return <Skeleton />;
@@ -90,11 +73,11 @@ const Page = () => {
 
   const handleAnswerSelect = (questionIndex, answerIndex) => {
     if (userAnswers[questionIndex] !== null) return;
-  
+
     const newUserAnswers = [...userAnswers];
     newUserAnswers[questionIndex] = answerIndex;
     setUserAnswers(newUserAnswers);
-  
+
     if (course.tests[questionIndex].answers[answerIndex] === course.tests[questionIndex].correctAnswer) {
       setModalContent('Правильно!');
       setCorrectCount((prevCount) => prevCount + 1);
@@ -103,7 +86,7 @@ const Page = () => {
       setIncorrectCount((prevCount) => prevCount + 1);
     }
     setShowModal(true);
-  
+
     setTimeout(() => {
       setShowModal(false);
       if (currentQuestion < course.tests.length - 1) {
@@ -131,9 +114,7 @@ const Page = () => {
 
   const renderConspect = () => (
     <div className="bg-gradient-to-br from-[#2C3E50] to-[#34495E] rounded-3xl p-8 w-full max-w-[100%] md:max-w-3xl shadow-2xl shadow-[#1E2A38] mb-10 text-white">
-      {topicImage && (
-        <img src={topicImage} alt={course.topic} className="w-full h-48 object-cover rounded-t-3xl mb-8" />
-      )}
+      {topicImage && <img src={topicImage} alt={course.topic} className="w-full h-48 object-cover rounded-t-3xl mb-8" />}
       <h2 className="text-2xl md:text-4xl font-bold mb-8 text-center">{course.topic}</h2>
       <div className="mb-8">
         {textChunks[page].split('\n\n').map((paragraph, index) => (
@@ -144,7 +125,7 @@ const Page = () => {
         <button 
           disabled={page === 0} 
           onClick={() => setPage(page - 1)} 
-          className={`bg-[#6a4ae2] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 hover:bg-[#8465f1] transform hover:-translate-y-1 active:translate-y-0 ${page === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`bg-[#6a4ae2] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 hover:bg-[#8465f1] ${page === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           Назад
         </button>
@@ -152,14 +133,14 @@ const Page = () => {
         {page === textChunks.length - 1 ? (
           <button 
             onClick={() => setIsReading(false)} 
-            className="bg-[#6a4ae2] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 hover:bg-[#8465f1] transform hover:-translate-y-1 active:translate-y-0"
+            className="bg-[#6a4ae2] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 hover:bg-[#8465f1]"
           >
             Начать тест
           </button>
         ) : (
           <button 
             onClick={() => setPage(page + 1)} 
-            className="bg-[#6a4ae2] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 hover:bg-[#8465f1] transform hover:-translate-y-1 active:translate-y-0"
+            className="bg-[#6a4ae2] text-white font-semibold py-3 px-6 rounded-xl transition duration-300 hover:bg-[#8465f1]"
           >
             Вперед
           </button>
@@ -167,6 +148,7 @@ const Page = () => {
       </div>
     </div>
   );
+
 
   const renderTest = () => (
     <div className="bg-gradient-to-br from-[#2C3E50] to-[#34495E] rounded-3xl p-8 w-full max-w-[100%] md:max-w-3xl shadow-2xl shadow-[#1E2A38] mb-10">
@@ -246,8 +228,6 @@ const Page = () => {
     );
   };
   
-  
-
   const renderModal = () => (
     <div className={`fixed bottom-0 left-0 right-0 bg-[#2C3E50] text-white p-4 transition-all duration-300 ${showModal ? 'transform translate-y-0' : 'transform translate-y-full'}`}>
       <p className="text-center text-lg font-bold">{modalContent}</p>
