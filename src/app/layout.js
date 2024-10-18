@@ -10,35 +10,42 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState(null); // Состояние для ошибок
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const telegram = window.Telegram?.WebApp;
+    const getTelegramIdFromURL = () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initData = urlParams.get("initData");
 
-    try {
-      // Проверка на наличие Telegram Web App и получение telegramId
-      if (telegram && telegram.initDataUnsafe?.user) {
-        const user = telegram.initDataUnsafe.user;
+        // Если initData существует, попробуем извлечь telegramId
+        if (initData) {
+          const initDataObj = JSON.parse(atob(initData));
+          const userId = initDataObj?.user?.id;
 
-        if (user.id) {
-          localStorage.setItem("telegramId", user.id.toString());
-          setIsAuthenticated(true);
+          if (userId) {
+            localStorage.setItem("telegramId", userId.toString());
+            setIsAuthenticated(true);
+            return;
+          } else {
+            throw new Error("Не удалось получить telegramId из initData.");
+          }
         } else {
-          throw new Error("Не удалось получить telegramId пользователя.");
+          throw new Error("initData отсутствует в URL.");
         }
-      } else {
-        throw new Error("Telegram Web App не инициализирован.");
+      } catch (err) {
+        setError(`Ошибка: ${err.message}`);
       }
-    } catch (err) {
-      setError(err.message); // Устанавливаем сообщение об ошибке
-    }
+    };
+
+    getTelegramIdFromURL();
   }, []);
 
   return (
     <html lang="en">
       <body className={inter}>
         <Header isAuthenticated={isAuthenticated} />
-        
+
         {/* Отображение ошибки на странице */}
         {error && (
           <div style={{ 
@@ -52,7 +59,7 @@ export default function RootLayout({ children }) {
             textAlign: 'center', 
             zIndex: 1000 
           }}>
-            Ошибка: {error}
+            {error}
           </div>
         )}
 
