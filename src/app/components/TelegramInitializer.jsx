@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-export default function TelegramInitializer({ onAuthStateChange }) {
+export default function TelegramInitializer({ children }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function TelegramInitializer({ onAuthStateChange }) {
 
           if (userId) {
             localStorage.setItem("telegramId", userId.toString());
-            onAuthStateChange(true);
+            setIsAuthenticated(true);
           } else {
             throw new Error("Не удалось получить telegramId пользователя.");
           }
@@ -26,12 +27,11 @@ export default function TelegramInitializer({ onAuthStateChange }) {
         }
       } catch (err) {
         setError(`Ошибка: ${err.message}`);
-        onAuthStateChange(false);
       }
     };
 
     initTelegram();
-  }, [onAuthStateChange]);
+  }, []);
 
   if (error) {
     return (
@@ -51,5 +51,5 @@ export default function TelegramInitializer({ onAuthStateChange }) {
     );
   }
 
-  return null;
+  return children({ isAuthenticated });
 }
