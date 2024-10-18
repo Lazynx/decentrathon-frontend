@@ -13,32 +13,25 @@ export default function RootLayout({ children }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const getTelegramIdFromURL = () => {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const initData = urlParams.get("initData");
+    try {
+      // Проверка на наличие Telegram Web App и получение данных о пользователе
+      const telegram = window.Telegram?.WebApp;
 
-        // Если initData существует, попробуем извлечь telegramId
-        if (initData) {
-          const initDataObj = JSON.parse(atob(initData));
-          const userId = initDataObj?.user?.id;
+      if (telegram && telegram.initDataUnsafe?.user) {
+        const userId = telegram.initDataUnsafe.user.id;
 
-          if (userId) {
-            localStorage.setItem("telegramId", userId.toString());
-            setIsAuthenticated(true);
-            return;
-          } else {
-            throw new Error("Не удалось получить telegramId из initData.");
-          }
+        if (userId) {
+          localStorage.setItem("telegramId", userId.toString());
+          setIsAuthenticated(true);
         } else {
-          throw new Error("initData отсутствует в URL.");
+          throw new Error("Не удалось получить telegramId пользователя.");
         }
-      } catch (err) {
-        setError(`Ошибка: ${err.message}`);
+      } else {
+        throw new Error("Telegram Web App не инициализирован или данные пользователя отсутствуют.");
       }
-    };
-
-    getTelegramIdFromURL();
+    } catch (err) {
+      setError(`Ошибка: ${err.message}`);
+    }
   }, []);
 
   return (
