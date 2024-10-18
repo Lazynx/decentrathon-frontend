@@ -6,6 +6,7 @@ import axiosInstance from "./utils/axiosInstance";
 import Course from "./components/course/Course";
 import Footer from "./components/layout/Footer";
 import Profile from "./components/profile/Profile";
+import Market from "./components/market/Market"; // Импортируем компонент Market
 import { FaPaperclip, FaPaperPlane } from "react-icons/fa";
 import Image from "next/image";
 
@@ -247,7 +248,7 @@ export default function Home() {
               </div>
             </div>
             <div className="pb-8">
-              <div className="w-[95%] max-w-2xl mx-auto relative positio">
+              <div className="w-[95%] max-w-2xl mx-auto relative">
                 <input
                   type="text"
                   className="w-full bg-[#2D2D2D] text-white rounded-full py-3 px-6 pr-24 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -303,6 +304,8 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {activeSection === "market" && <Market />} {/* Добавляем секцию Market */}
       </main>
 
       <Footer

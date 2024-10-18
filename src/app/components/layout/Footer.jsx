@@ -1,3 +1,4 @@
+// components/layout/Footer.jsx
 import React from "react";
 
 const Footer = ({ activeSection, setActiveSection }) => {
@@ -26,6 +27,7 @@ const Footer = ({ activeSection, setActiveSection }) => {
           </svg>
           <span>Главная</span>
         </button>
+
         <button
           className={`flex flex-col items-center ${
             activeSection === "courses" ? "text-[#6a4ae2]" : ""
@@ -48,6 +50,7 @@ const Footer = ({ activeSection, setActiveSection }) => {
           </svg>
           <span>Курсы</span>
         </button>
+
         <button
           className={`flex flex-col items-center ${
             activeSection === "profile" ? "text-[#6a4ae2]" : ""
@@ -69,6 +72,31 @@ const Footer = ({ activeSection, setActiveSection }) => {
             />
           </svg>
           <span>Профиль</span>
+        </button>
+
+        {/* Новая кнопка для секции 'Market' */}
+        <button
+          className={`flex flex-col items-center ${
+            activeSection === "market" ? "text-[#6a4ae2]" : ""
+          }`}
+          onClick={() => setActiveSection("market")}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            {/* Иконка магазина (shopping cart) */}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m4-9v9m1-10h-4"
+            />
+          </svg>
+          <span>Market</span>
         </button>
       </div>
     </footer>
