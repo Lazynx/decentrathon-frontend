@@ -1,7 +1,7 @@
 'use client';
 
-import Header from "../components/layout/Header";
-import TelegramInitializer from "../components/TelegramInitializer";
+import Header from "./components/layout/Header";
+import TelegramInitializer from "./components/TelegramInitializer";
 
 export default function ClientLayout({ children }) {
   return (
