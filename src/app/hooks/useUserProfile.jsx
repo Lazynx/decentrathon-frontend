@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/app/utils/axiosInstance';
+import axios from "axios";
+
+// const axiosInstance = axios.create({
+//   baseURL: `${process.env.NEXT_PUBLIC_ORIGIN}`,
+// });
 
 export const useUserProfile = () => {
   const [userData, setUserData] = useState(null);
@@ -9,7 +14,10 @@ export const useUserProfile = () => {
   const fetchProfile = async () => {
     try {
       const telegramId = localStorage.getItem('telegramId'); 
-      const response = await axiosInstance.put('/auth/userInfo', { telegramId });
+    //   const response = await axiosInstance.put('/auth/userInfo', { telegramId });
+      const response = await axios.create({
+        baseURL: `${process.env.NEXT_PUBLIC_ORIGIN}/auth/userInfo`,
+      }, { telegramId });
       const user = response.data.data.user; 
 
       setUserData({
