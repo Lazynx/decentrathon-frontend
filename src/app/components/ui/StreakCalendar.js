@@ -1,4 +1,5 @@
 import React from "react";
+import { getDayLabel } from '@/app/utils/getDayLabel';
 
 const StreakCalendar = ({ streak }) => {
   const days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -7,7 +8,7 @@ const StreakCalendar = ({ streak }) => {
 
   return (
     <div className="mt-6 bg-[#20232676] rounded-2xl p-4">
-      <h3 className="text-xl font-semibold mb-2">Ваш стрик: {streak} дней</h3>
+      <h3 className="text-xl font-semibold mb-2">Ваш стрик: {streak} {getDayLabel(streak)}</h3>
       <div className="flex justify-between">
         {days.map((day, index) => {
           const isPast = index < currentDay;

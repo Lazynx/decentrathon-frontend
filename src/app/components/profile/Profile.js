@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StreakCalendar from '../ui/StreakCalendar';
 import axiosInstance from '@/app/utils/axiosInstance';
+import { getDayLabel } from '@/app/utils/getDayLabel';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -70,7 +71,7 @@ const Profile = () => {
         <h2 className="text-2xl md:text-4xl font-bold mb-2">{userData.username}</h2>
         <div className="flex items-center justify-center space-x-2 mb-4">
           <span className="bg-yellow-400 text-black font-bold rounded-full px-3 py-1 text-sm">Уровень {userData.level}</span>
-          <span className="bg-green-400 text-black font-bold rounded-full px-3 py-1 text-sm">Стрик: {userData.streak} дней</span>
+          <span className="bg-green-400 text-black font-bold rounded-full px-3 py-1 text-sm">Стрик: {userData.streak} {getDayLabel(userData.streak)}</span>
         </div>
         
         <div className="bg-white/20 rounded-full h-4 mb-4">
