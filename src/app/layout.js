@@ -15,44 +15,28 @@ export default function RootLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Проверка на наличие Telegram Web App
-    if (window.Telegram && window.Telegram.WebApp) {
-      const telegram = window.Telegram.WebApp;
-      const user = telegram.initDataUnsafe?.user;
+    const telegram = window.Telegram?.WebApp;
 
-      // Извлечение telegramId пользователя
-      if (user && user.id) {
-        localStorage.setItem("telegramId", user.id);
+    // Проверка на наличие Telegram Web App и получение telegramId
+    if (telegram && telegram.initDataUnsafe?.user) {
+      const user = telegram.initDataUnsafe.user;
+
+      if (user.id) {
+        localStorage.setItem("telegramId", user.id.toString());
+        setIsAuthenticated(true);
+        console.log(`Telegram ID сохранен: ${user.id}`);
+      } else {
+        console.error("Не удалось получить telegramId пользователя.");
       }
+    } else {
+      console.warn("Telegram Web App не инициализирован.");
     }
 
-    const checkAuth = async () => {
-      const telegramId = localStorage.getItem("telegramId");
-
-      if (!telegramId) {
-        // Если telegramId отсутствует, пользователь неаутентифицирован
-        setIsAuthenticated(false);
-        return;
-      }
-
-      try {
-        await axiosInstance.get("/auth/protected", {
-          headers: {
-            "X-Telegram-ID": telegramId,
-          },
-        });
-
-        await axiosInstance.put("/auth/updateCurrentTime", { telegramId });
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Ошибка при аутентификации:", error);
-        localStorage.removeItem("telegramId");
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+    // Если telegramId отсутствует в localStorage, редирект на страницу регистрации
+    if (!localStorage.getItem("telegramId")) {
+      router.push("/pages/register");
+    }
+  }, [router]);
 
   return (
     <html lang="en">
