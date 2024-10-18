@@ -4,45 +4,67 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/layout/Header";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import axiosInstance from "./utils/axiosInstance";
 import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState(null); // Состояние для ошибок
 
   useEffect(() => {
     const telegram = window.Telegram?.WebApp;
 
-    // Проверка на наличие Telegram Web App и получение telegramId
-    if (telegram && telegram.initDataUnsafe?.user) {
-      const user = telegram.initDataUnsafe.user;
+    try {
+      // Проверка на наличие Telegram Web App и получение telegramId
+      if (telegram && telegram.initDataUnsafe?.user) {
+        const user = telegram.initDataUnsafe.user;
 
-      if (user.id) {
-        localStorage.setItem("telegramId", user.id.toString());
-        setIsAuthenticated(true);
-        console.log(`Telegram ID сохранен: ${user.id}`);
+        if (user.id) {
+          localStorage.setItem("telegramId", user.id.toString());
+          setIsAuthenticated(true);
+        } else {
+          throw new Error("Не удалось получить telegramId пользователя.");
+        }
       } else {
-        console.error("Не удалось получить telegramId пользователя.");
+        throw new Error("Telegram Web App не инициализирован.");
       }
-    } else {
-      console.warn("Telegram Web App не инициализирован.");
+    } catch (err) {
+      setError(err.message); // Устанавливаем сообщение об ошибке
     }
-
-    // Если telegramId отсутствует в localStorage, редирект на страницу регистрации
-    if (!localStorage.getItem("telegramId")) {
-      router.push("/pages/register");
-    }
-  }, [router]);
+  }, []);
 
   return (
     <html lang="en">
       <body className={inter}>
         <Header isAuthenticated={isAuthenticated} />
-        {children}
+        
+        {/* Отображение ошибки на странице */}
+        {error && (
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            backgroundColor: 'red', 
+            color: 'white', 
+            padding: '10px', 
+            textAlign: 'center', 
+            zIndex: 1000 
+          }}>
+            Ошибка: {error}
+          </div>
+        )}
+
+        {/* Отображение контента, даже если telegramId не найден */}
+        {!isAuthenticated ? (
+          <div style={{ textAlign: 'center', marginTop: '20px', color: 'white' }}>
+            Для продолжения, пожалуйста, авторизуйтесь в Telegram.
+          </div>
+        ) : (
+          children
+        )}
+
         <Analytics />
       </body>
     </html>
