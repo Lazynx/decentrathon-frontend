@@ -26,7 +26,7 @@ export const useUserProfile = () => {
       });
       setLoading(false);
     } catch (error) {
-      setError('Ошибка при обновлении данных пользователя.');
+      setError(`Ошибка при обновлении данных пользователя. ${error.message}`);
       setLoading(false);
     }
   };
