@@ -7,22 +7,34 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "./utils/axiosInstance";
 import { Analytics } from "@vercel/analytics/react";
-import axios from "axios";
 
 const inter = Inter({ subsets: ["latin"] });
-// test
+
 export default function RootLayout({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  useEffect(() => { 
+  useEffect(() => {
+    // Проверка на наличие Telegram Web App
+    if (window.Telegram && window.Telegram.WebApp) {
+      const telegram = window.Telegram.WebApp;
+      const user = telegram.initDataUnsafe?.user;
+
+      // Извлечение telegramId пользователя
+      if (user && user.id) {
+        localStorage.setItem("telegramId", user.id);
+      }
+    }
+
     const checkAuth = async () => {
       const telegramId = localStorage.getItem("telegramId");
-      
+
       if (!telegramId) {
-        router.push("/pages/register");
+        // Если telegramId отсутствует, пользователь неаутентифицирован
+        setIsAuthenticated(false);
         return;
       }
+
       try {
         await axiosInstance.get("/auth/protected", {
           headers: {
@@ -30,27 +42,22 @@ export default function RootLayout({ children }) {
           },
         });
 
-        try {
-          const response = await axiosInstance.put("/auth/updateCurrentTime", {
-            telegramId,
-          });
-        } catch (error) {
-          console.error("Ошибка при обновлении времени:", error);
-        }
+        await axiosInstance.put("/auth/updateCurrentTime", { telegramId });
         setIsAuthenticated(true);
       } catch (error) {
+        console.error("Ошибка при аутентификации:", error);
         localStorage.removeItem("telegramId");
-        router.push("/pages/register");
+        setIsAuthenticated(false);
       }
     };
-    
+
     checkAuth();
-  }, [router]);
+  }, []);
 
   return (
     <html lang="en">
       <body className={inter}>
-        <Header />
+        <Header isAuthenticated={isAuthenticated} />
         {children}
         <Analytics />
       </body>
