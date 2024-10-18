@@ -14,7 +14,7 @@ export const useUserProfile = () => {
   const fetchProfile = async () => {
     try {
       const telegramId = localStorage.getItem('telegramId'); 
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_ORIGIN}/auth/userInfo`, { telegramId });
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_ORIGIN}/auth/userInfo`, { telegramId: telegramId });
     //   const response = await axiosInstance.put('/auth/userInfo', { telegramId });
     //   const response = await axios.create({
     //     baseURL: `${process.env.NEXT_PUBLIC_ORIGIN}/auth/userInfo`,
