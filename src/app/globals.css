@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  /* Use solid background color */
+  background-color: #191a1a;
+  /* background-color: #222222; */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .rotate-animation {
+    @apply transition-transform duration-500;
+  }
+
+  .rotate-animation:hover {
+    animation: rotate 1s infinite linear;
+  }
+
+  .rotate-animation-loader {
+    animation: rotate 1s infinite linear;
+  }
+}
+
+.path-node::before,
+.path-node::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 2rem;
+  background-color: gray;
+}
+
+.path-node::before {
+  top: -2rem;
+}
+
+.path-node:first-child::before {
+  display: none;
+}
+
+.path-node::after {
+  top: 2rem;
+}
+
+.path-node:last-child::after {
+  display: none;
+}
+
+.left {
+  align-self: flex-start;
+  margin-left: 50%;
+}
+.right {
+  align-self: flex-end;
+  margin-right: 50%;
+}
+
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 0.8s ease;
+}
+
+.accordion-content.closed {
+  max-height: 0;
+}
+
+.accordion-content.open {
+  max-height: 1000px; /* Adjust this value according to your content height */
+}
+
+/* Add this CSS to your global styles */
+.loader {
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #6a4ae2; /* Blue */
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(-200%);
+  }
+}
+
+/* 
+
+.animate-scroll {
+  animation: scroll 10s linear infinite;
+} */
+
+.animate-scroll {
+  display: flex;
+  gap: 1rem; /* Adjust the gap as needed */
+  white-space: nowrap;
+  animation: scroll 15s linear infinite;
+}
