@@ -8,17 +8,21 @@ export const useUserProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      const response = await axiosInstance.put('/auth/userInfo', { token: refreshToken });
-      const user = response.data.user;
+      const telegramId = localStorage.getItem('telegramId'); 
+      const response = await axiosInstance.put('/auth/userInfo', { telegramId });
+      const user = response.data.data.user; 
 
       setUserData({
         username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
         level: user.level,
         user_interest: user.surveyAnswers,
         xp: user.xp,
-        nextLevelXP: user.next_level,
+        nextLevelXP: user.nextLevel,
         streak: user.streak,
+        userCourses: user.userCourses,
+        currency: user.currency,
       });
       setLoading(false);
     } catch (error) {

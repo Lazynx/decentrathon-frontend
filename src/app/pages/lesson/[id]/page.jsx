@@ -56,9 +56,9 @@ const Page = () => {
     if (testCompleted && (correctCount + incorrectCount) * 0.6 <= correctCount) {
       const addXp = async () => {
         try {
-          const refreshToken = localStorage.getItem('refreshToken');
-          await axiosInstance.put('/auth/addXp', { token: refreshToken });
-          await axiosInstance.post(`/course/${courseID}/${lessonID}/complete`, { token: refreshToken });
+          const telegramId = localStorage.getItem('telegramId');
+          await axiosInstance.put('/auth/addXp', { telegramId });
+          await axiosInstance.post(`/course/${courseID}/${lessonID}/complete`, { telegramId });
         } catch (error) {
           console.error('Error adding XP:', error);
         }
@@ -66,7 +66,7 @@ const Page = () => {
       addXp();
     }
   }, [testCompleted, correctCount, incorrectCount, courseID, lessonID]);
-  
+
   if (!course) {
     return <Skeleton />;
   }

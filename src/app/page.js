@@ -67,12 +67,12 @@ export default function Home() {
 
   const fetchCourses = async () => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
+      const telegramId = localStorage.getItem("telegramId"); // Используем telegramId вместо токенов
       const response = await axiosInstance.post("/course/user_courses", {
-        token: refreshToken,
+        telegramId, // Передаем telegramId в запросе
       });
       const courseIds = response.data.user_courses;
-  
+
       const courseDetailsPromises = courseIds.map(async (id) => {
         try {
           const courseResponse = await axiosInstance.get(
@@ -86,18 +86,22 @@ export default function Home() {
             };
           }
         } catch (courseError) {
-          if (courseError.response && courseError.response.data.message === "Course not found") {
+          if (
+            courseError.response &&
+            courseError.response.data.message === "Course not found"
+          ) {
             console.warn(`Course with id ${id} not found. Skipping.`);
-            return null; // Return null or any other value to signify that this course is to be skipped
+            return null; // Пропускаем отсутствующий курс
           } else {
-            throw courseError; // Re-throw if it's a different error
+            throw courseError; // Пробрасываем ошибку дальше
           }
         }
       });
-  
+
       const courseDetails = await Promise.all(courseDetailsPromises);
-      // Filter out any null values from the results
-      const validCourseDetails = courseDetails.filter(course => course !== null);
+      const validCourseDetails = courseDetails.filter(
+        (course) => course !== null
+      );
       setCourses(validCourseDetails);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -105,7 +109,8 @@ export default function Home() {
       setCourseLoading(false);
     }
   };
-    useEffect(() => {
+
+  useEffect(() => {
     fetchCourses();
   }, []);
 
@@ -126,17 +131,17 @@ export default function Home() {
       alert("Пожалуйста, введите текст или выберите файл");
       return;
     }
-    const refreshToken = localStorage.getItem("refreshToken");
+    const telegramId = localStorage.getItem("telegramId");
     const response = await axiosInstance.put("/auth/userInfo", {
-      token: refreshToken,
+      telegramId, 
     });
-    const user = response.data.user;
+    const user = response.data.data.user;
 
     const formData = new FormData();
     if (file) {
       formData.append("material", file);
     }
-    formData.append("token", refreshToken);
+    formData.append("telegramId", telegramId);
     formData.append("user_interest", user.surveyAnswers.join(","));
     formData.append("userInput", userInput);
 

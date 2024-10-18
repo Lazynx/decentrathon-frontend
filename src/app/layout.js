@@ -15,35 +15,35 @@ export default function RootLayout({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
+  useEffect(() => { 
     const checkAuth = async () => {
-      const token = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!token || !refreshToken) {
+      const telegramId = localStorage.getItem("telegramId");
+      
+      if (!telegramId) {
         router.push("/pages/register");
         return;
       }
       try {
         await axiosInstance.get("/auth/protected", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            "X-Telegram-ID": telegramId,
           },
         });
 
         try {
           const response = await axiosInstance.put("/auth/updateCurrentTime", {
-            token: refreshToken,
+            telegramId,
           });
         } catch (error) {
           console.error("Ошибка при обновлении времени:", error);
         }
         setIsAuthenticated(true);
       } catch (error) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("telegramId");
         router.push("/pages/register");
       }
     };
+    
     checkAuth();
   }, [router]);
 
