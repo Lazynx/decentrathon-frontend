@@ -193,11 +193,10 @@ const Page = () => {
   );
 
   const renderResult = () => {
-    
     const startIndex = resultPage * resultsPerPage;
     const endIndex = startIndex + resultsPerPage;
     const currentResults = course.tests.slice(startIndex, endIndex);
-
+  
     return (
       <div className="bg-gradient-to-br from-[#3a3d40] to-[#34495E] rounded-3xl p-8 w-full max-w-[100%] md:max-w-3xl shadow-2xl shadow-[#1E2A38] mb-10 text-white items-center">
         <h2 className="text-2xl md:text-4xl font-bold mb-8 text-center">Результаты теста</h2>
@@ -223,12 +222,12 @@ const Page = () => {
             {currentResults.map((testItem, index) => (
               <li key={startIndex + index} className="bg-white/10 rounded-2xl p-6">
                 <p className="text-lg md:text-xl font-bold mb-3">{testItem.question}</p>
-                <p className={`text-base md:text-lg ${userAnswers[startIndex + index] === testItem.correctAnswer ? 'text-green-400' : 'text-red-400'}`}>
-                  Ваш ответ: {testItem.answers[userAnswers[startIndex + index]]}
+                <p className={`text-base md:text-lg ${course.tests[startIndex + index].answers[userAnswers[startIndex + index]] === course.tests[startIndex + index].correctAnswer ? 'text-green-400' : 'text-red-400'}`}>
+                  Ваш ответ: {course.tests[startIndex + index].answers[userAnswers[startIndex + index]]}
                 </p>
-                {userAnswers[startIndex + index] !== testItem.correctAnswer && (
+                {course.tests[startIndex + index].answers[userAnswers[startIndex + index]] !== course.tests[startIndex + index].correctAnswer && (
                   <p className="text-base md:text-lg text-green-400 mt-2">
-                    Правильный ответ: {testItem.answers[testItem.correctAnswer]}
+                    Правильный ответ: {course.tests[startIndex + index].correctAnswer}
                   </p>
                 )}
               </li>
@@ -246,6 +245,8 @@ const Page = () => {
       </div>
     );
   };
+  
+  
 
   const renderModal = () => (
     <div className={`fixed bottom-0 left-0 right-0 bg-[#2C3E50] text-white p-4 transition-all duration-300 ${showModal ? 'transform translate-y-0' : 'transform translate-y-full'}`}>
