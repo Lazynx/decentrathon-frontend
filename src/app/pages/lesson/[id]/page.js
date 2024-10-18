@@ -47,7 +47,7 @@ const Page = () => {
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        const response = await axios.get(`https://spirality-backend-production.up.railway.app/api/course/${courseID}/${lessonID}`);
+        const response = await axios.get(`${process.env.ORIGIN}/api/course/${courseID}/${lessonID}`);
         setCourse(response.data);
         setUserAnswers(new Array(response.data.tests.length).fill(null));
         
@@ -74,8 +74,8 @@ const Page = () => {
       const addXp = async () => {
         try {
           const refreshToken = localStorage.getItem('refreshToken');
-          await axios.put(`https://spirality-backend-production.up.railway.app/api/auth/addXp`, { token: refreshToken });
-          await axios.post(`https://spirality-backend-production.up.railway.app/api/course/${courseID}/${lessonID}/complete`, { token: refreshToken });
+          await axios.put(`${process.env.ORIGIN}/api/auth/addXp`, { token: refreshToken });
+          await axios.post(`${process.env.ORIGIN}/api/course/${courseID}/${lessonID}/complete`, { token: refreshToken });
         } catch (error) {
           console.error('Error adding XP:', error);
         }

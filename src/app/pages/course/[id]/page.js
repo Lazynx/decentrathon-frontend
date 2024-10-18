@@ -6,6 +6,8 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 import dotenv from 'dotenv'
 
+dotenv.config();
+
 const Page = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null); 
@@ -18,7 +20,7 @@ const Page = () => {
 
   const fetchCourse = async () => {
     try {
-      const courseResponse = await axios.get(`https://spirality-backend-production.up.railway.app/api/course/${courseId}/get_topic_id`);
+      const courseResponse = await axios.get(`${process.env.ORIGIN}/api/course/${courseId}/get_topic_id`);
       topics_all_id = courseResponse.data.id_collection;
 
       setCourse({

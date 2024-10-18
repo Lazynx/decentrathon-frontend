@@ -1,7 +1,10 @@
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const axiosInstance = axios.create({
-  baseURL: `https://spirality-backend-production.up.railway.app/api`, // Make sure this matches your backend base URL
+  baseURL: `${process.env.ORIGIN}/api`,
 });
 
 axiosInstance.interceptors.request.use(

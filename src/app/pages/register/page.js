@@ -354,7 +354,7 @@ export default function Page() {
         </motion.button>
         {error && <p className="text-red-500 mt-4">{error}</p>}
       </form>
-      <p className='font-ubuntu mt-4 underline text-sm text-white cursor-pointer' onClick={() => router.push('https://spirality-frontend.vercel.app/pages/login')}>
+      <p className='font-ubuntu mt-4 underline text-sm text-white cursor-pointer' onClick={() => router.push("/pages/login")}>
         Уже есть аккаунт? Войдите!
       </p>
     </motion.section>
