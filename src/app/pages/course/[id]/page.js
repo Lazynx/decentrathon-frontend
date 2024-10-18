@@ -4,9 +4,6 @@ import React, { useEffect, useState } from 'react';
 import Course from '@/app/components/course/Course';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
-import dotenv from 'dotenv'
-
-dotenv.config();
 
 const Page = () => {
   const { id } = useParams();
@@ -20,7 +17,7 @@ const Page = () => {
 
   const fetchCourse = async () => {
     try {
-      const courseResponse = await axios.get(`${process.env.ORIGIN}/api/course/${courseId}/get_topic_id`);
+      const courseResponse = await axios.get(`${process.env.NEXT_PUBLIC_ORIGIN}/api/course/${courseId}/get_topic_id`);
       topics_all_id = courseResponse.data.id_collection;
 
       setCourse({

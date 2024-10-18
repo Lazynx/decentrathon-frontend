@@ -1,10 +1,7 @@
 import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const axiosInstance = axios.create({
-  baseURL: `${process.env.ORIGIN}/api`,
+  baseURL: `${process.env.NEXT_PUBLIC_ORIGIN}/api`,
 });
 
 axiosInstance.interceptors.request.use(

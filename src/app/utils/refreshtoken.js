@@ -1,8 +1,5 @@
 // /utils/refreshToken.js
 import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export async function refreshToken() {
   const refreshToken = localStorage.getItem("refreshToken");
@@ -10,7 +7,7 @@ export async function refreshToken() {
 
   try {
     const response = await axios.post(
-      `${process.env.ORIGIN}/api/auth/refresh-token`,
+      `${process.env.NEXT_PUBLIC_ORIGIN}/api/auth/refresh-token`,
       { token: refreshToken }
     );
     const { accessToken, refreshToken: newRefreshToken } = response.data;

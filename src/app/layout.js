@@ -8,9 +8,6 @@ import { useRouter } from "next/navigation";
 import axiosInstance from "./utils/axiosInstance";
 import { Analytics } from "@vercel/analytics/react";
 import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const inter = Inter({ subsets: ["latin"] });
 

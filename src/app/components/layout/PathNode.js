@@ -15,7 +15,7 @@ const PathNode = ({ topic_id, course_id, isLast, index }) => {
     const fetchTopicData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.ORIGIN}/api/course/${course_id}`
+          `${process.env.NEXT_PUBLIC_ORIGIN}/api/course/${course_id}`
         );
         const courseData = response.data;
         const topic = courseData.topics.find((t) => t._id === topic_id);
