@@ -3,7 +3,7 @@ import React from "react";
 
 const Footer = ({ activeSection, setActiveSection }) => {
   return (
-    <footer className="bg-[#171819] text-white py-4 fixed bottom-[-1px] w-full">
+    <footer className="bg-[#171819] text-white py-4 fixed bottom-[-1px] w-full font-ubuntu">
       <div className="container mx-auto flex justify-around items-center">
         <button
           className={`flex flex-col items-center ${
