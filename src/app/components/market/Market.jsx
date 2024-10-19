@@ -3,6 +3,9 @@ import { TonConnectButton } from "@tonconnect/ui-react";
 import Layout from "./Layout";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Package, Coins, Star } from 'lucide-react';
+import { sendTransaction } from './transaction';
+import { X } from 'lucide-react';
+
 
 const StarField = () => {
   const stars = Array.from({ length: 50 });
@@ -276,6 +279,34 @@ const RecentOpening = ({ username, caseName, prize }) => (
 const Market = () => {
   const [balance, setBalance] = useState(1000);
   const [isOpeningCase, setIsOpeningCase] = useState(false);
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleSendTokens = async () => {
+    if (!recipientAddress) {
+        setMessage('Пожалуйста, введите адрес кошелька');
+        return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+        await sendTransaction(recipientAddress);
+        setMessage('Токены успешно отправлены!');
+
+        setTimeout(() => {
+            setMessage('Токены будут отправлены в течение 10 минут.');
+        }, 10000);
+    } catch (error) {
+        console.error(error);
+        setMessage('Произошла ошибка при отправке токенов.');
+    } finally {
+        setLoading(false);
+    }
+};
   
   const cases = [
     { id: 1, title: "Начальный курс", price: 100, rarity: "common" },
@@ -337,8 +368,81 @@ const Market = () => {
               
               {/* Wallet Connection Section */}
               <div className="flex-1 min-w-[200px] max-w-md"> {/* Уменьшили min-w с min-w-[250px] на min-w-[200px] */}
-                <TonConnectButton className="w-full px-4 py-2 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600 transition duration-300" /> {/* Уменьшили padding с px-6 py-4 на px-4 py-2, rounded-2xl на rounded-xl, shadow-lg на shadow-md */}
+                <TonConnectButton className="w-full px-4 py-2 bg-blue-500 text-white rounded-xl shadow-md hover:bg-blue-600 transition duration-300" /> 
+                <button
+                        onClick={() => setModalOpen(true)}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Награда
+                </button>
               </div>
+              {isModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        {/* Modal Content */}
+                        <div className="bg-white rounded-xl shadow-xl w-full max-w-md transform transition-all">
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-semibold text-gray-800">
+                                        Получить награду
+                                    </h2>
+                                    <button
+                                        onClick={() => setModalOpen(false)}
+                                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Адрес кошелька
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={recipientAddress}
+                                            onChange={(e) => setRecipientAddress(e.target.value)}
+                                            placeholder="Введите адрес получателя"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    {message && (
+                                        <div className={`p-4 rounded-lg ${
+                                            message.includes('успешно') 
+                                                ? 'bg-green-100 text-green-700'
+                                                : message.includes('ошибка')
+                                                    ? 'bg-red-100 text-red-700'
+                                                    : 'bg-blue-100 text-blue-700'
+                                        }`}>
+                                            {message}
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-end space-x-3">
+                                        <button
+                                            onClick={() => setModalOpen(false)}
+                                            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                                        >
+                                            Отмена
+                                        </button>
+                                        <button
+                                            onClick={handleSendTokens}
+                                            disabled={loading}
+                                            className={`px-6 py-2 rounded-lg text-white ${
+                                                loading
+                                                    ? 'bg-blue-400 cursor-not-allowed'
+                                                    : 'bg-blue-600 hover:bg-blue-700'
+                                            } transition-colors`}
+                                        >
+                                            {loading ? 'Отправка...' : 'Получить'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             
             {/* Deposit Button */}
