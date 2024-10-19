@@ -320,8 +320,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import InitialTest from './InitialTest';
-import InitialTest from "./components/layout/Header";
+import InitialTest from "./components/InitialTest";
 
 export default function Page() {
   const [step, setStep] = useState('landing');
