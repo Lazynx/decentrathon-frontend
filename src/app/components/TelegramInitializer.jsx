@@ -208,13 +208,19 @@ export default function TelegramInitializer({ children }) {
 
   const checkUserExists = async (telegramId) => {
     try {
-    const response = await axiosInstance.post('/user/check-user', {
-        telegramId: telegramId,
-        });
-      return response.ok;
+      const response = await axiosInstance.get('/user/check-user', {
+        params: {
+          telegramId: telegramId,
+        },
+      });
+      return response.data.exists;
     } catch (error) {
-      console.error('Error checking user existence:', error);
-      return false;
+      if (error.response && error.response.status === 404) {
+        return false;
+      } else {
+        console.error('Error checking user existence:', error);
+        return false;
+      }
     }
   };
 

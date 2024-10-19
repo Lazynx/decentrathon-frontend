@@ -436,9 +436,88 @@ function PageContent({ telegramAuth, isNewUser }) {
           </div>
         )}
 
-        {activeSection === 'home' && (
+        {activeSection === "home" && (
           <section className="flex flex-col h-screen text-white font-ubuntu mt-[-50%] md:mt-[-15%]">
-            {/* Ваш контент домашней страницы */}
+            <div className="flex-grow flex flex-col items-center justify-center px-4 mt-44">
+              <h1 className="text-4xl md:text-6xl font-bold mb-8 text-s max-sm:p-4">
+                Создай персональный курс в пару кликов
+              </h1>
+              <div className="w-[110%] max-w-2xl overflow-hidden">
+                <div className="suggestion-container mb-8 whitespace-nowrap overflow-hidden">
+                  <div className="suggestions-scroll flex animate-scroll gap-10">
+                    {suggestions
+                      .concat(suggestions)
+                      .map((suggestion, index) => (
+                        <button
+                          key={index}
+                          className="bg-[#2D2D2D] text-white px-4 py-2 rounded-lg text-lg hover:bg-[#3D3D3D] transition-colors mr-2 whitespace-nowrap mb-6"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                  </div>
+
+                  <div className="suggestions-scroll flex animate-scroll gap-4">
+                    {suggestions_2
+                      .concat(suggestions_2)
+                      .map((suggestion, index) => (
+                        <button
+                          key={index}
+                          className="bg-[#2D2D2D] text-white px-4 py-2 rounded-lg text-lg hover:bg-[#3D3D3D] transition-colors mr-2 whitespace-nowrap mb-6"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                  </div>
+
+                  <div className="suggestions-scroll flex animate-scroll gap-4">
+                    {suggestions_3
+                      .concat(suggestions_3)
+                      .map((suggestion, index) => (
+                        <button
+                          key={index}
+                          className="bg-[#2D2D2D] text-white px-4 py-2 rounded-lg text-lg hover:bg-[#3D3D3D] transition-colors mr-2 whitespace-nowrap mb-6"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pb-8">
+              <div className="w-[95%] max-w-2xl mx-auto relative positio">
+                <input
+                  type="text"
+                  className="w-full bg-[#2D2D2D] text-white rounded-full py-3 px-6 pr-24 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder=" Создай мне курс по..."
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="absolute right-14 top-1/2 -translate-y-1/2 cursor-pointer"
+                >
+                  <FaPaperclip className="text-gray-400 hover:text-white transition-colors text-xl" />
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept="image/*,.pdf,.doc,.docx"
+                />
+                <button
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-colors"
+                  onClick={handleSubmit}
+                >
+                  <FaPaperPlane />
+                </button>
+              </div>
+            </div>
           </section>
         )}
 
