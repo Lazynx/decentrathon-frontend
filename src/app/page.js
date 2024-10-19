@@ -344,14 +344,20 @@ function PageContent({ telegramAuth, isNewUser }) {
         telegramId,
       });
   
-      const courseIds = response.data.userCourses; // Обновлено название поля
+      const courseIds = response.data.courses.userCourses; // Обновлено название поля
+  
+      // if (!Array.isArray(courseIds) || courseIds.length === 0) {
+      //   console.warn("No courses found for the user.");
+      //   setCourses([]);
+      //   return;
+      // }
   
       const courseDetailsPromises = courseIds.map(async (id) => {
         try {
           const courseResponse = await axiosInstance.get(
             `/course/${id}/get_topic_id`
           );
-          if (courseResponse.status === 200) {
+          if (courseResponse.status === 200) {  
             return {
               id: courseResponse.data.name_of_course._id,
               name: courseResponse.data.name_of_course.headName,
@@ -359,7 +365,10 @@ function PageContent({ telegramAuth, isNewUser }) {
             };
           }
         } catch (courseError) {
-          if (courseError.response && courseError.response.data.message === "Course not found") {
+          if (
+            courseError.response &&
+            courseError.response.data.message === "Course not found"
+          ) {
             console.warn(`Course with id ${id} not found. Skipping.`);
             return null; // Return null or any other value to signify that this course is to be skipped
           } else {
