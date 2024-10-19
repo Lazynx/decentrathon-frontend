@@ -343,37 +343,31 @@ function PageContent({ telegramAuth, isNewUser }) {
       const response = await axiosInstance.post('/course/user_courses', {
         telegramId,
       });
-      const courseIds = response.data.user_courses;
-
-      const courseDetailsPromises = courseIds.map(async (id) => {
+      console.log('Response data:', response.data);
+  
+      const coursesData = response.data.courses;
+  
+      if (!Array.isArray(coursesData) || coursesData.length === 0) {
+        console.warn('No courses found for the user.');
+        setCourses([]);
+        return;
+      }
+  
+      const courseDetailsPromises = coursesData.map(async (course) => {
         try {
-          const courseResponse = await axiosInstance.get(
-            `/course/${id}/get_topic_id`
-          );
-          if (courseResponse.status === 200) {
-            return {
-              id: courseResponse.data.name_of_course._id,
-              name: courseResponse.data.name_of_course.headName,
-              topics: courseResponse.data.id_collection,
-            };
-          }
+          return {
+            id: course._id,
+            name: course.headName,
+            topics: course.topics.map((topic) => topic._id),
+          };
         } catch (courseError) {
-          if (
-            courseError.response &&
-            courseError.response.data.message === 'Course not found'
-          ) {
-            console.warn(`Course with id ${id} not found. Skipping.`);
-            return null;
-          } else {
-            throw courseError;
-          }
+          console.error('Error processing course:', courseError);
+          return null;
         }
       });
-
+  
       const courseDetails = await Promise.all(courseDetailsPromises);
-      const validCourseDetails = courseDetails.filter(
-        (course) => course !== null
-      );
+      const validCourseDetails = courseDetails.filter((course) => course !== null);
       setCourses(validCourseDetails);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -381,7 +375,7 @@ function PageContent({ telegramAuth, isNewUser }) {
       setCourseLoading(false);
     }
   };
-
+  
   useEffect(() => {
     if (isAuthenticated) {
       fetchCourses();
