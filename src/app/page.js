@@ -618,6 +618,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TelegramInitializer from './components/TelegramInitializer';
 import { motion } from 'framer-motion';
+import axiosInstance from "./utils/axiosInstance";
 
 export default function Page() {
   return (
@@ -760,18 +761,12 @@ function PageContent({ telegramAuth, isNewUser }) {
       const telegram = window.Telegram?.WebApp;
       const { id, username, first_name, last_name } = telegram.initDataUnsafe.user;
 
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          telegramId: id,
-          username,
-          firstName: first_name,
-          lastName: last_name,
-          surveyAnswers,
-        }),
+      const response = await axiosInstance.post('/auth/register', {
+        telegramId: id,
+        username,
+        firstName: first_name,
+        lastName: last_name,
+        surveyAnswers,
       });
 
       if (response.ok) {
