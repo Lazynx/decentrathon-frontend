@@ -315,9 +315,10 @@
 //     </div>
 //   );
 // }
-"use client";
+'use client';
 
 import React, { useState } from 'react';
+import TelegramInitializer from './components/TelegramInitializer';
 import { useCourses } from './hooks/useCourses';
 import { useFileUpload } from './hooks/useFileUpload';
 import Course from './components/course/Course';
@@ -338,38 +339,42 @@ export default function Home() {
   const suggestions_3 = ["📓 Дифференциальные уравнения", "🏹 Средневековая Европа"];
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden -z-10">
-        <Image alt="" className="pointer-events-none mix-blend-color-burn opacity-20 absolute scale-[300%] inset-0 -z-10" src="/v0-bg.svg" fill />
-      </div>
+    <TelegramInitializer>
+      {({ isAuthenticated }) => (
+        <div className="flex flex-col min-h-screen">
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden -z-10">
+            <Image alt="" className="pointer-events-none mix-blend-color-burn opacity-20 absolute scale-[300%] inset-0 -z-10" src="/v0-bg.svg" fill />
+          </div>
 
-      <main className="flex-grow">
-        {loading && <LoadingScreen />}
-        
-        {activeSection === "home" && (
-          <section className="flex flex-col h-screen text-white font-ubuntu mt-[-50%] md:mt-[-15%]">
-            <div className="flex-grow flex flex-col items-center justify-center px-4 mt-44">
-              <h1 className="text-4xl md:text-6xl font-bold mb-8">Создай персональный курс в пару кликов</h1>
-              <SuggestionList suggestions={suggestions} handleSuggestionClick={setUserInput} />
-              <SuggestionList suggestions={suggestions_2} handleSuggestionClick={setUserInput} />
-              <SuggestionList suggestions={suggestions_3} handleSuggestionClick={setUserInput} />
-            </div>
-            <FileUpload
-              userInput={userInput}
-              setUserInput={setUserInput}
-              handleFileChange={handleFileChange}
-              handleSubmit={handleSubmit}
-            />
-          </section>
-        )}
+          <main className="flex-grow">
+            {loading && <LoadingScreen />}
+            
+            {isAuthenticated && activeSection === "home" && (
+              <section className="flex flex-col h-screen text-white font-ubuntu mt-[-50%] md:mt-[-15%]">
+                <div className="flex-grow flex flex-col items-center justify-center px-4 mt-44">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-8">Создай персональный курс в пару кликов</h1>
+                  <SuggestionList suggestions={suggestions} handleSuggestionClick={setUserInput} />
+                  <SuggestionList suggestions={suggestions_2} handleSuggestionClick={setUserInput} />
+                  <SuggestionList suggestions={suggestions_3} handleSuggestionClick={setUserInput} />
+                </div>
+                <FileUpload
+                  userInput={userInput}
+                  setUserInput={setUserInput}
+                  handleFileChange={handleFileChange}
+                  handleSubmit={handleSubmit}
+                />
+              </section>
+            )}
 
-        {activeSection === "profile" && <Profile />}
-        {activeSection === "courses" && <CourseList courses={courses} courseLoading={courseLoading} />}
-        {activeSection === "market" && <Market />}
-      </main>
+            {isAuthenticated && activeSection === "profile" && <Profile />}
+            {isAuthenticated && activeSection === "courses" && <CourseList courses={courses} courseLoading={courseLoading} />}
+            {isAuthenticated && activeSection === "market" && <Market />}
+          </main>
 
-      <Footer activeSection={activeSection} setActiveSection={setActiveSection} />
-    </div>
+          {isAuthenticated && <Footer activeSection={activeSection} setActiveSection={setActiveSection} />}
+        </div>
+      )}
+    </TelegramInitializer>
   );
 }
 
