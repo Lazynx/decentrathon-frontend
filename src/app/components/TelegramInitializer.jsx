@@ -164,6 +164,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import axiosInstance from '../utils/axiosInstance';
 
 export default function TelegramInitializer({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
