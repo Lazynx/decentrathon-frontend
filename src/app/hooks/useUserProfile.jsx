@@ -18,9 +18,6 @@ export const useUserProfile = () => {
         { telegramId }
       );
     //   const response = await axiosInstance.put('/auth/userInfo', { telegramId });
-    //   const response = await axios.create({
-    //     baseURL: `${process.env.NEXT_PUBLIC_ORIGIN}/auth/userInfo`,
-    //   }, { telegramId });
       const user = response.data.data.user; 
 
       setUserData({
