@@ -339,54 +339,55 @@ function PageContent({ telegramAuth, isNewUser }) {
 
   const fetchCourses = async () => {
     try {
-      const telegramId = localStorage.getItem('telegramId');
-      const response = await axiosInstance.post('/course/user_courses', {
+      const telegramId = localStorage.getItem("telegramId");
+      const response = await axiosInstance.post("/course/user_courses", {
         telegramId,
       });
-      console.log('Response data:', response.data);
   
-      const courseIds = response.data.courses;
+      const courseIds = response.data.userCourses; // Обновлено название поля
   
       if (!Array.isArray(courseIds) || courseIds.length === 0) {
-        console.warn('No courses found for the user.');
+        console.warn("No courses found for the user.");
         setCourses([]);
         return;
       }
   
-      const courseDetailsPromises = courseIds.map(async (courseId) => {
+      const courseDetailsPromises = courseIds.map(async (id) => {
         try {
-          // Получаем детали курса по его идентификатору
-          const courseResponse = await axiosInstance.get(`/course/${courseId}`);
-          const course = courseResponse.data;
-  
-          console.log('Fetched course:', course);
-  
-          // Проверяем, что course.topics - это массив
-          const topics = Array.isArray(course.topics) ? course.topics : [];
-  
-          // Если у тем есть поля _id, собираем их
-          const topicIds = topics.map((topic) => topic._id);
-  
-          return {
-            id: course._id,
-            name: course.headName,
-            topics: topicIds,
-          };
+          const courseResponse = await axiosInstance.get(
+            `/course/${id}/get_topic_id`
+          );
+          if (courseResponse.status === 200) {
+            return {
+              id: courseResponse.data.name_of_course._id,
+              name: courseResponse.data.name_of_course.headName,
+              topics: courseResponse.data.id_collection,
+            };
+          }
         } catch (courseError) {
-          console.error('Error processing course:', courseError);
-          return null;
+          if (
+            courseError.response &&
+            courseError.response.data.message === "Course not found"
+          ) {
+            console.warn(`Course with id ${id} not found. Skipping.`);
+            return null; // Return null or any other value to signify that this course is to be skipped
+          } else {
+            throw courseError; // Re-throw if it's a different error
+          }
         }
       });
   
       const courseDetails = await Promise.all(courseDetailsPromises);
+      // Filter out any null values from the results
       const validCourseDetails = courseDetails.filter((course) => course !== null);
       setCourses(validCourseDetails);
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error("Error fetching courses:", error);
     } finally {
       setCourseLoading(false);
     }
   };
+  
   
 
   useEffect(() => {
