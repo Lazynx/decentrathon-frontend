@@ -208,7 +208,9 @@ export default function TelegramInitializer({ children }) {
 
   const checkUserExists = async (telegramId) => {
     try {
-      const response = await fetch(`/api/user/check-user?telegramId=${telegramId}`);
+    const response = await axiosInstance.post('/user/check-user', {
+        telegramId: telegramId,
+        });
       return response.ok;
     } catch (error) {
       console.error('Error checking user existence:', error);
