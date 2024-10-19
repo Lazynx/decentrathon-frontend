@@ -2,10 +2,6 @@ import { useState, useEffect } from 'react';
 import axiosInstance from '@/app/utils/axiosInstance';
 import axios from "axios";
 
-// const axiosInstance = axios.create({
-//   baseURL: `${process.env.NEXT_PUBLIC_ORIGIN}`,
-// });
-
 export const useUserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);

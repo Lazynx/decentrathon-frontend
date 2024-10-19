@@ -68,9 +68,9 @@ export default function Home() {
 
   const fetchCourses = async () => {
     try {
-      const telegramId = localStorage.getItem("telegramId"); // Используем telegramId вместо токенов
+      const telegramId = localStorage.getItem("telegramId");
       const response = await axiosInstance.post("/course/user_courses", {
-        telegramId, // Передаем telegramId в запросе
+        telegramId, 
       });
       const courseIds = response.data.user_courses;
 
@@ -92,9 +92,9 @@ export default function Home() {
             courseError.response.data.message === "Course not found"
           ) {
             console.warn(`Course with id ${id} not found. Skipping.`);
-            return null; // Пропускаем отсутствующий курс
+            return null; 
           } else {
-            throw courseError; // Пробрасываем ошибку дальше
+            throw courseError;
           }
         }
       });
