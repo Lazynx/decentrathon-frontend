@@ -29,6 +29,8 @@
     "ton-crypto": "^3.2.0"
   },
   "devDependencies": {
+    "@types/node": "22.7.7",
+    "@types/react": "18.3.11",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
