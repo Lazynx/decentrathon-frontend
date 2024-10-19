@@ -629,12 +629,28 @@ export default function Page() {
     </TelegramInitializer>
   );
 }
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axiosInstance from './utils/axiosInstance';
+import Course from './components/course/Course';
+import Footer from './components/layout/Footer';
+import Profile from './components/profile/Profile';
+import Market from './components/market/Market';
+import { FaPaperclip, FaPaperPlane } from 'react-icons/fa';
+import Image from 'next/image';
 
 function PageContent({ telegramAuth, isNewUser }) {
   const [showSurvey, setShowSurvey] = useState(isNewUser);
   const [isAuthenticated, setIsAuthenticated] = useState(telegramAuth);
   const [surveyStep, setSurveyStep] = useState(0);
   const [surveyAnswers, setSurveyAnswers] = useState([]);
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [courseLoading, setCourseLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('home');
+  const [userInput, setUserInput] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -893,10 +909,117 @@ function PageContent({ telegramAuth, isNewUser }) {
     );
   };
 
+  const fetchCourses = async () => {
+    try {
+      const telegramId = localStorage.getItem('telegramId');
+      const response = await axiosInstance.post('/course/user_courses', {
+        telegramId,
+      });
+      const courseIds = response.data.user_courses;
+
+      const courseDetailsPromises = courseIds.map(async (id) => {
+        try {
+          const courseResponse = await axiosInstance.get(
+            `/course/${id}/get_topic_id`
+          );
+          if (courseResponse.status === 200) {
+            return {
+              id: courseResponse.data.name_of_course._id,
+              name: courseResponse.data.name_of_course.headName,
+              topics: courseResponse.data.id_collection,
+            };
+          }
+        } catch (courseError) {
+          if (
+            courseError.response &&
+            courseError.response.data.message === 'Course not found'
+          ) {
+            console.warn(`Course with id ${id} not found. Skipping.`);
+            return null;
+          } else {
+            throw courseError;
+          }
+        }
+      });
+
+      const courseDetails = await Promise.all(courseDetailsPromises);
+      const validCourseDetails = courseDetails.filter(
+        (course) => course !== null
+      );
+      setCourses(validCourseDetails);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setCourseLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchCourses();
+    }
+  }, [isAuthenticated]);
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setUploadSuccess(false);
+  };
+
+  const removeFile = () => {
+    setFile(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!file && !userInput.trim()) {
+      alert('Пожалуйста, введите текст или выберите файл');
+      return;
+    }
+    const telegramId = localStorage.getItem('telegramId');
+    const response = await axiosInstance.put('/auth/userInfo', {
+      telegramId,
+    });
+    const user = response.data.data.user;
+
+    const formData = new FormData();
+    if (file) {
+      formData.append('material', file);
+    }
+    formData.append('telegramId', telegramId);
+    formData.append('user_interest', user.surveyAnswers.join(','));
+    formData.append('userInput', userInput);
+
+    try {
+      setLoading(true);
+
+      const response = await axiosInstance.post('/course/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const { data } = response;
+
+      const newTestId = data._id;
+      setUploadSuccess(true);
+      router.push(`pages/course/course-${newTestId}`);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setUserInput(suggestion);
+  };
+
+  // Если показывается опрос
   if (showSurvey) {
     return renderSurvey();
   }
 
+  // Если пользователь не аутентифицирован
   if (!isAuthenticated) {
     return (
       <div style={{ textAlign: 'center', marginTop: '20px', color: 'white' }}>
@@ -905,11 +1028,69 @@ function PageContent({ telegramAuth, isNewUser }) {
     );
   }
 
-  // Здесь размещается основной контент страницы для аутентифицированных пользователей
+  // Основной контент для аутентифицированных пользователей
   return (
-    <div>
-      <h1>Добро пожаловать в приложение!</h1>
-      {/* Добавьте здесь основной контент вашего приложения */}
+    <div className="flex flex-col min-h-screen">
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden -z-10">
+        <div className="relative mb-72 -z-10 h-full w-full min-w-[29rem] max-w-[96rem] sm:mb-0">
+          <Image
+            alt=""
+            className="pointer-events-none mix-blend-color-burn opacity-20 absolute scale-[300%] inset-0 -z-10 -translate-x-2 select-none sm:translate-x-0"
+            src="/v0-bg.svg"
+            fill
+          />
+        </div>
+      </div>
+
+      <main className="flex-grow">
+        {loading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <img
+              src="https://i.ibb.co/vkqbnCb/spiral-logo-concept-swirl-modern-logo-design-free-vector-Photoroom.png"
+              alt="Spirality Logo"
+              className="h-32 w-32 md:h-30 md:w-30 rotate-animation-loader"
+            />
+          </div>
+        )}
+
+        {activeSection === 'home' && (
+          <section className="flex flex-col h-screen text-white font-ubuntu mt-[-50%] md:mt-[-15%]">
+            {/* Ваш контент домашней страницы */}
+          </section>
+        )}
+
+        {activeSection === 'profile' && <Profile />}
+
+        {activeSection === 'courses' && (
+          <div className="rounded-2xl p-6 w-full max-w-[90%] md:max-w-3xl mx-auto text-center mb-4">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-8 text-start mt-4 md:py-6">
+              Твои курсы
+            </h1>
+            {courseLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="loader"></div>
+              </div>
+            ) : (
+              courses.map((course) => (
+                <Course
+                  key={course.id}
+                  course_id={course.id}
+                  name_of_course={course.name}
+                  topics_id={course.topics}
+                  isOpen={false}
+                />
+              ))
+            )}
+          </div>
+        )}
+
+        {activeSection === 'market' && <Market />}
+      </main>
+
+      <Footer
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+      />
     </div>
   );
 }
