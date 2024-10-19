@@ -1,7 +1,7 @@
 import React from 'react';
 import StreakCalendar from '../ui/StreakCalendar';
-import { getDayLabel } from '@/app/utils/getDayLabel';
-import { useUserProfile } from '@/app/hooks/useUserProfile';
+import { getDayLabel } from './utils/getDayLabel';
+import { useUserProfile } from './hooks/useUserProfile';
 
 const SkeletonLoader = () => (
   <div className="animate-pulse">
