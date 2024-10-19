@@ -345,20 +345,32 @@ function PageContent({ telegramAuth, isNewUser }) {
       });
       console.log('Response data:', response.data);
   
-      const coursesData = response.data.courses;
+      const courseIds = response.data.courses;
   
-      if (!Array.isArray(coursesData) || coursesData.length === 0) {
+      if (!Array.isArray(courseIds) || courseIds.length === 0) {
         console.warn('No courses found for the user.');
         setCourses([]);
         return;
       }
   
-      const courseDetailsPromises = coursesData.map(async (course) => {
+      const courseDetailsPromises = courseIds.map(async (courseId) => {
         try {
+          // Получаем детали курса по его идентификатору
+          const courseResponse = await axiosInstance.get(`/course/${courseId}`);
+          const course = courseResponse.data;
+  
+          console.log('Fetched course:', course);
+  
+          // Проверяем, что course.topics - это массив
+          const topics = Array.isArray(course.topics) ? course.topics : [];
+  
+          // Если у тем есть поля _id, собираем их
+          const topicIds = topics.map((topic) => topic._id);
+  
           return {
             id: course._id,
             name: course.headName,
-            topics: course.topics.map((topic) => topic._id),
+            topics: topicIds,
           };
         } catch (courseError) {
           console.error('Error processing course:', courseError);
@@ -376,6 +388,7 @@ function PageContent({ telegramAuth, isNewUser }) {
     }
   };
   
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchCourses();
