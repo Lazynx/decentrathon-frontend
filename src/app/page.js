@@ -315,6 +315,8 @@
 //     </div>
 //   );
 // }
+"use client";
+
 import React, { useState } from 'react';
 import { useCourses } from './hooks/useCourses';
 import { useFileUpload } from './hooks/useFileUpload';
