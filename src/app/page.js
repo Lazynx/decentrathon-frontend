@@ -324,8 +324,8 @@ import Course from './components/course/Course';
 import Footer from './components/layout/Footer';
 import Profile from './components/profile/Profile';
 import Market from './components/market/Market';
-import SuggestionList from './components/SuggestionList';
-import FileUpload from './components/FileUpload';
+import SuggestionList from './components/suggestionList/SuggestionList';
+import FileUpload from './components/fileUpload/FileUpload';
 import Image from 'next/image';
 
 export default function Home() {
