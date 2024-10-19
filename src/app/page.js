@@ -769,16 +769,11 @@ function PageContent({ telegramAuth, isNewUser }) {
         surveyAnswers,
       });
 
-      if (response.ok) {
-        setIsAuthenticated(true);
-        setShowSurvey(false);
-      } else {
-        throw new Error("Ошибка при регистрации пользователя");
-      }
+      setIsAuthenticated(true);
+      setShowSurvey(false);
     } catch (err) {
       console.error("Ошибка:", err.message);
-      alert(err.message);
-      // Здесь можно добавить обработку ошибки
+      alert("Ошибка при регистрации пользователя: " + err.message);
     }
   };
 
