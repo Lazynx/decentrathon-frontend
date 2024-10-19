@@ -216,23 +216,24 @@ export default function TelegramInitializer({ children }) {
     }
   };
 
-  if (error) {
-    return (
-      <div style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        backgroundColor: 'red', 
-        color: 'white', 
-        padding: '10px', 
-        textAlign: 'center', 
-        zIndex: 1000 
-      }}>
-        {error}
-      </div>
-    );
-  }
-
-  return children({ isAuthenticated, isNewUser });
+  return (
+    <>
+      {error && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          backgroundColor: 'red', 
+          color: 'white', 
+          padding: '10px', 
+          textAlign: 'center', 
+          zIndex: 1000 
+        }}>
+          {error}
+        </div>
+      )}
+      {children({ isAuthenticated, isNewUser })}
+    </>
+  );
 }
