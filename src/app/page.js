@@ -351,12 +351,15 @@ function PageContent({ telegramAuth, isNewUser }) {
       //   setCourses([]);
       //   return;
       // }
+      console.log(courseIds);
   
       const courseDetailsPromises = courseIds.map(async (id) => {
         try {
           const courseResponse = await axiosInstance.get(
             `/course/${id}/get_topic_id`
           );
+
+          console.log(courseResponse);
           if (courseResponse.status === 200) {  
             return {
               id: courseResponse.data.name_of_course._id,
