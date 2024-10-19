@@ -317,88 +317,95 @@
 // }
 'use client';
 
-import React, { useState } from 'react';
-import TelegramInitializer from './components/TelegramInitializer';
-import { useCourses } from './hooks/useCourses';
-import { useFileUpload } from './hooks/useFileUpload';
-import Course from './components/course/Course';
-import Footer from './components/layout/Footer';
-import Profile from './components/profile/Profile';
-import Market from './components/market/Market';
-import SuggestionList from './components/suggestionList/SuggestionList';
-import FileUpload from './components/fileUpload/FileUpload';
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import InitialTest from './InitialTest';
+import InitialTest from "./components/layout/Header";
 
-export default function Home() {
-  const [activeSection, setActiveSection] = useState('home');
-  const { courses, loading: courseLoading } = useCourses();
-  const { file, userInput, loading, setUserInput, handleFileChange, handleSubmit } = useFileUpload();
+export default function Page() {
+  const [step, setStep] = useState('landing');
+  const [surveyStep, setSurveyStep] = useState(0);
+  const [surveyAnswers, setSurveyAnswers] = useState([]);
+  const router = useRouter();
 
-  const suggestions = ["📓 Курс по тригонометрии", "🏹 Монгольское нашествие", "👨‍💻 Основы программирования на Python"];
-  const suggestions_2 = ["📓 Введение в алгебру", "🏹 История Великой Отечественной войны"];
-  const suggestions_3 = ["📓 Дифференциальные уравнения", "🏹 Средневековая Европа"];
+  const handleSurveyNext = () => {
+    if (surveyStep < surveyQuestions.length - 1) {
+      setSurveyStep(surveyStep + 1);
+    } else {
+      setStep('register');
+    }
+  };
+
+  const surveyQuestions = [
+    {
+      question: "🕒 Какое количество времени вы тратите на подготовку к экзаменам или изучение новых тем?",
+      options: ["Меньше 30 минут ⏳", "30-60 минут ⏰", "1-2 часа ⌛", "Больше 2 часов 🕰️"],
+      key: "studyTime",
+    },
+    // ... остальные вопросы
+  ];
+
+  const renderLanding = () => (
+    <div className="bg-[#171819] p-4 rounded-lg shadow-xl max-w-md mx-auto mt-10 text-center">
+      <h1 className="text-2xl font-bold text-white mb-4">Создание индивидуальных курсов</h1>
+      <p className="text-lg text-gray-300 mb-8">Бесплатно, весело и эффективно!</p>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setStep('survey')}
+        className="bg-[#6a4ae2] text-white py-3 rounded-lg w-full mb-4"
+      >
+        НАЧАТЬ
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => router.push('/pages/login')}
+        className="bg-transparent text-[#6a4ae2] border border-[#6a4ae2] py-3 rounded-lg w-full"
+      >
+        У МЕНЯ УЖЕ ЕСТЬ АККАУНТ
+      </motion.button>
+    </div>
+  );
+
+  const renderSurvey = () => {
+    const currentQuestion = surveyQuestions[surveyStep];
+    return (
+      <motion.section
+        key={surveyStep}
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -50 }}
+        transition={{ duration: 0.5 }}
+        className="bg-[#171819] p-6 rounded-lg max-w-lg mx-auto mt-10 text-white"
+      >
+        <h2 className="text-xl font-bold mb-4">{currentQuestion.question}</h2>
+        <div className="grid grid-cols-1 gap-4">
+          {currentQuestion.options.map((option, index) => (
+            <motion.button
+              key={index}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                setSurveyAnswers([...surveyAnswers, option]);
+                handleSurveyNext();
+              }}
+              className="bg-[#2A2D2E] text-white py-2 rounded-lg hover:bg-[#3A3D3E] transition-colors"
+            >
+              {option}
+            </motion.button>
+          ))}
+        </div>
+      </motion.section>
+    );
+  };
 
   return (
-    <TelegramInitializer>
-      {({ isAuthenticated }) => (
-        <div className="flex flex-col min-h-screen">
-          <div className="absolute inset-0 flex items-center justify-center overflow-hidden -z-10">
-            <Image alt="" className="pointer-events-none mix-blend-color-burn opacity-20 absolute scale-[300%] inset-0 -z-10" src="/v0-bg.svg" fill />
-          </div>
-
-          <main className="flex-grow">
-            {loading && <LoadingScreen />}
-            
-            {isAuthenticated && activeSection === "home" && (
-              <section className="flex flex-col h-screen text-white font-ubuntu mt-[-50%] md:mt-[-15%]">
-                <div className="flex-grow flex flex-col items-center justify-center px-4 mt-44">
-                  <h1 className="text-4xl md:text-6xl font-bold mb-8">Создай персональный курс в пару кликов</h1>
-                  <SuggestionList suggestions={suggestions} handleSuggestionClick={setUserInput} />
-                  <SuggestionList suggestions={suggestions_2} handleSuggestionClick={setUserInput} />
-                  <SuggestionList suggestions={suggestions_3} handleSuggestionClick={setUserInput} />
-                </div>
-                <FileUpload
-                  userInput={userInput}
-                  setUserInput={setUserInput}
-                  handleFileChange={handleFileChange}
-                  handleSubmit={handleSubmit}
-                />
-              </section>
-            )}
-
-            {isAuthenticated && activeSection === "profile" && <Profile />}
-            {isAuthenticated && activeSection === "courses" && <CourseList courses={courses} courseLoading={courseLoading} />}
-            {isAuthenticated && activeSection === "market" && <Market />}
-          </main>
-
-          {isAuthenticated && <Footer activeSection={activeSection} setActiveSection={setActiveSection} />}
-        </div>
-      )}
-    </TelegramInitializer>
+    <main className="min-h-screen flex flex-col items-center justify-start px-4 py-10 md:py-20">
+      {step === 'landing' && renderLanding()}
+      {step === 'survey' && renderSurvey()}
+      {step === 'register' && <InitialTest onComplete={() => router.push('/')} />}
+    </main>
   );
 }
-
-const LoadingScreen = () => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <img
-      src="https://i.ibb.co/vkqbnCb/spiral-logo-concept-swirl-modern-logo-design-free-vector-Photoroom.png"
-      alt="Spirality Logo"
-      className="h-32 w-32 md:h-30 md:w-30 rotate-animation-loader"
-    />
-  </div>
-);
-
-const CourseList = ({ courses, courseLoading }) => (
-  <div className="rounded-2xl p-6 w-full max-w-[90%] md:max-w-3xl mx-auto text-center mb-4">
-    <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-8">Твои курсы</h1>
-    {courseLoading ? (
-      <div className="flex items-center justify-center">
-        <div className="loader"></div>
-      </div>
-    ) : (
-      courses.map((course) => (
-        <Course key={course.id} course_id={course.id} name_of_course={course.name} topics_id={course.topics} isOpen={false} />
-      ))
-    )}
-  </div>
-);
